@@ -38,13 +38,21 @@ class Settings(BaseSettings):
     
     # Backend сервер
     backend_host: str = "0.0.0.0"
-    backend_port: int = 8001
+    backend_port: int = 8011
     
     # Режим тестирования с заглушками
     use_vlm_stubs: bool = True
     use_llm_stubs: bool = False
     use_image_gen_stubs: bool = True
     
+
+    image_gen_provider: str = "comfyui"  
+    # gemini | comfyui
+
+    comfyui_base_url: str = "http://localhost:8188"
+    comfyui_workflow_path: str = "data/workflows/z_image_turbo_simple.json"
+    comfyui_timeout: int = 300
+
     class Config:
         env_file = ".env"
         case_sensitive = False

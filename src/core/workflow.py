@@ -55,7 +55,7 @@ class ImageGenerationWorkflow:
             "prepare_threshold": 0,
         }
 
-        self.db_pool = AsyncConnectionPool(conninfo=ImageGenerationWorkflow._get_database_url(), kwargs=connection_kwargs)
+        self.db_pool = AsyncConnectionPool(conninfo=ImageGenerationWorkflow._get_database_url(), kwargs=connection_kwargs, open=False)
         await self.db_pool.open() 
         
         self.checkpointer = AsyncPostgresSaver(self.db_pool)

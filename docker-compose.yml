@@ -51,6 +51,33 @@ services:
         echo 'Bucket attachments создан.'
       "
 
+  backend:
+    build: .
+    command: uvicorn src.backend.server:app --host 0.0.0.0 --port 8011
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    ports:
+      - "8011:8011"
+    depends_on:
+      - db
+      - minio
+
+  frontend:
+    build: .
+    command: chainlit run src/web/app.py --host 0.0.0.0 --port 8008
+    environment:
+      BACKEND_URL: http://backend:8011
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    ports:
+      - "8008:8008"
+    depends_on:
+      - backend
+
 volumes:
   db-data:
   pgadmin-data:

@@ -20,7 +20,7 @@ from prompts.web_messages import (
     SYSTEM_READY_MESSAGE,
 )
 
-BACKEND_URL = os.getenv('BACKEND_URL', 'http://localhost:8001')
+BACKEND_URL = os.getenv('BACKEND_URL', 'http://localhost:8011')
 
 
 def _build_ws_url(base: str) -> str:
