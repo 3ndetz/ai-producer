@@ -26,6 +26,14 @@
 
 ### Размещение кода
 
+
+Клонирование конкретной ветки
+
+```bash
+git clone --branch comfyui-generator --single-branch https://github.com/3ndetz/ai-producer
+```
+
+
 Репозиторий с нодой должен быть размещён в директории пользовательских нод ComfyUI:
 
 ```text
