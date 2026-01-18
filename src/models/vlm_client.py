@@ -73,27 +73,17 @@ class VLMClient:
     async def analyze_image(
         self,
         image_path: str,
-        critique_prompt: str
-    ) -> Dict[str, Any]:
+        description_prompt: str
+    ) -> str:
         try:
             if settings.use_vlm_stubs:
                 import asyncio
                 await asyncio.sleep(1)
-                
-                return {
-                    "description": "Add more details",
-                    "correct_elements": "Stub correct elements",
-                    "incorrect_elements": "Stub incorrect elements",
-                    "quality_score": 5.0
-                }
-            
-            image = Image.open(image_path)
-            critique_text = await self._run_vlm_inference(image, critique_prompt)
-            
-            parsed_analysis = self._parse_critique_response(critique_text)
+                return "Stub visual description"
 
-            return parsed_analysis
-        
+            image = Image.open(image_path)
+            description = await self._run_vlm_inference(image, description_prompt)
+            return description
         except Exception as e:
             error_msg = f"Error analyzing image: {str(e)}"
             logger.error(error_msg)
@@ -112,7 +102,7 @@ class VLMClient:
         )
         output = generate(
             self.model, self.processor, formatted_prompt, 
-            image, max_tokens=300, verbose=False
+            image, max_tokens=settings.vlm_max_tokens, verbose=False
         )
         return output.text
     
@@ -137,10 +127,11 @@ class VLMClient:
         return response_text
        
     
+    @staticmethod
     def _extract_quality_score(critique_text: str) -> float:
         patterns = [
-            r"Quality Score:\s*([\d.,]+)",
-            r"Score:\s*([\d.,]+)",
+            r"Quality\s*Score.*?:\D*([\d.,]+)",
+            r"Score.*?:\D*([\d.,]+)",
             r"([\d.,]+)\s*/\s*10"
         ]
         
@@ -150,29 +141,12 @@ class VLMClient:
                 score_str = match.group(1).replace(',', '.')
                 try:
                     score = float(score_str)
+                    logger.debug(f"Extracted quality score: {score}")
                     return min(max(score, 0.0), 10.0)
                 except ValueError:
                     pass
 
         return 5.0
-    
-    def _parse_critique_response(self, response_text: str) -> Dict[str, Any]:    
-        description_match = re.search(r"\*\*Description:\*\*\s*(.*?)(?=\*\*|$)", response_text, re.DOTALL)
-        correct_match = re.search(r"\*\*Correct Elements:\*\*\s*(.*?)(?=\*\*|$)", response_text, re.DOTALL)
-        incorrect_match = re.search(r"\*\*Incorrect Elements:\*\*\s*(.*?)(?=\*\*|$)", response_text, re.DOTALL)
-        
-        description = description_match.group(1).strip() if description_match else "No description provided"
-        correct_elements = correct_match.group(1).strip() if correct_match else "No correct elements identified"
-        incorrect_elements = incorrect_match.group(1).strip() if incorrect_match else "No incorrect elements identified"
-        
-        quality_score = self._extract_quality_score(response_text)
-        
-        return {
-            "description": description,
-            "correct_elements": correct_elements,
-            "incorrect_elements": incorrect_elements,
-            "quality_score": quality_score
-        }
     
     async def is_available(self) -> bool:
         if self.mode == "local":
