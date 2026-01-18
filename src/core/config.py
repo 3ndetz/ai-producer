@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     use_image_gen_stubs: bool = True
     
 
+    image_gen_style: str = "descriptive"
     image_gen_provider: str = "comfyui"  
     # gemini | comfyui
 

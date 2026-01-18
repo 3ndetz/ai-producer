@@ -5,7 +5,7 @@ from src.core.config import settings
 from src.core.state import WorkflowState
 from src.models.llm_client import LLMClient
 from src.models.image_generation_client import ImageGenerationClient
-from src.prompts.generator_prompts import GENERATOR_SYSTEM_PROMPT, format_generator_prompt
+from src.prompts.generator_prompts import GENERATOR_SYSTEM_PROMPT, GENERATOR_SYSTEM_PROMPT_SDXL, format_generator_prompt
 
 
 class GeneratorAgent:
@@ -39,9 +39,12 @@ class GeneratorAgent:
                     "current_iteration": state['current_iteration']
                 })            
             
+            system_prompt = GENERATOR_SYSTEM_PROMPT
+            if settings.image_gen_style == 'sdxl':
+                system_prompt = GENERATOR_SYSTEM_PROMPT_SDXL
             optimized_prompt = await self.llm_client.generate(
                 prompt=generator_prompt,
-                system_prompt=GENERATOR_SYSTEM_PROMPT,
+                system_prompt=system_prompt,
                 max_tokens=settings.generator_max_tokens,
                 temperature=0.7
             )
