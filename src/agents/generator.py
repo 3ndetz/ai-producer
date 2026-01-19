@@ -4,12 +4,12 @@ from typing import Callable, Optional
 from src.core.config import settings
 from src.core.state import WorkflowState
 from src.models.llm_client import LLMClient
-from src.models.image_generation_client import ImageGenerationClient
+from src.models.image_gen_interface import ImageGenerationClientInterface
 from src.prompts.generator_prompts import GENERATOR_SYSTEM_PROMPT, format_generator_prompt
 
 
 class GeneratorAgent:
-    def __init__(self, imagen_client: ImageGenerationClient, llm_client: LLMClient):
+    def __init__(self, imagen_client: ImageGenerationClientInterface, llm_client: LLMClient):
         self.imagen_client = imagen_client
         self.llm_client = llm_client
         self.name = "Generator"
@@ -17,6 +17,8 @@ class GeneratorAgent:
     
     def set_status_callback(self, callback: Callable):
         self.status_callback = callback
+        if hasattr(self.imagen_client, "set_status_callback"):
+            self.imagen_client.set_status_callback(callback)
 
     async def execute(self, state: WorkflowState) -> WorkflowState:
         logger.debug(f"\n{'='*60}")
@@ -63,7 +65,8 @@ class GeneratorAgent:
             
             image_path = await self.imagen_client.generate_image(
                 prompt=optimized_prompt,
-                iteration=state['current_iteration'] 
+                iteration=state['current_iteration'],
+                thread_id=state['thread_id']
             )
             
             if self.status_callback:  # STATUS_CALLBACK: image_ready
@@ -100,4 +103,5 @@ class GeneratorAgent:
             return state
     
     def __str__(self):
-        return f"GeneratorAgent(imagen_client={self.imagen_client.model_name}, llm_client={self.llm_client.model})"
+        image_gen_client = getattr(self.imagen_client, "model_name", type(self.imagen_client).__name__)
+        return f"GeneratorAgent(image_gen_client={image_gen_client}, llm_client={self.llm_client.model})"

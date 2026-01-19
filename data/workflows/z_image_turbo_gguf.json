@@ -1,0 +1,90 @@
+{
+  "prompt": {
+    "1": {
+      "class_type": "UnetLoaderGGUF",
+      "inputs": {
+        "unet_name": "{UNET_NAME}"
+      }
+    },
+
+    "2": {
+      "class_type": "CLIPLoaderGGUF",
+      "inputs": {
+        "clip_name": "{CLIP_NAME}",
+        "type": "{CLIP_TYPE}"
+      }
+    },
+
+    "3": {
+      "class_type": "ModelSamplingAuraFlow",
+      "inputs": {
+        "model": ["1", 0],
+        "shift": 3
+      }
+    },
+
+    "6": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": ["2", 0],
+        "text": "{POSITIVE_PROMPT}"
+      }
+    },
+
+    "7": {
+      "class_type": "CLIPTextEncode",
+      "inputs": {
+        "clip": ["2", 0],
+        "text": "{NEGATIVE_PROMPT}"
+      }
+    },
+
+    "12": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "width": "{WIDTH}",
+        "height": "{HEIGHT}",
+        "batch_size": "{BATCH_SIZE}"
+      }
+    },
+
+    "8": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": ["3", 0],
+        "positive": ["6", 0],
+        "negative": ["7", 0],
+        "latent_image": ["12", 0],
+        "seed": "{SEED}",
+        "steps": "{STEPS}",
+        "cfg": "{CFG}",
+        "sampler_name": "{SAMPLER_NAME}",
+        "scheduler": "{SCHEDULER}",
+        "denoise": "{DENOISE}"
+      }
+    },
+
+    "10": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "{VAE_NAME}"
+      }
+    },
+
+    "9": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": ["8", 0],
+        "vae": ["10", 0]
+      }
+    },
+
+    "11": {
+      "class_type": "SaveImage",
+      "inputs": {
+        "images": ["9", 0],
+        "filename_prefix": "ComfyUI"
+      }
+    }
+  }
+}

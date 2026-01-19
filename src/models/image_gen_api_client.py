@@ -7,10 +7,12 @@ from PIL import Image
 from io import BytesIO
 from typing import Optional
 from datetime import datetime
+
 from src.core.config import settings
+from src.models.image_gen_interface import ImageGenerationClientInterface
 
 
-class ImageGenerationClient:
+class ImageGenerationClient(ImageGenerationClientInterface):
     def __init__(self, api_key: Optional[str] = None, 
                        model: Optional[str] = None):
         self.api_key = api_key or settings.google_api_key
@@ -22,7 +24,8 @@ class ImageGenerationClient:
         self,
         prompt: str,
         output_dir: Optional[str] = None,
-        iteration: int = 0
+        iteration: int = 0,
+        thread_id: Optional[str] = None
     ) -> str:
         try:
             if settings.use_image_gen_stubs:

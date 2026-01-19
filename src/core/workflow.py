@@ -6,7 +6,7 @@ load_dotenv()
 from src.agents.generator import GeneratorAgent
 from src.agents.critic import CriticAgent
 from src.agents.planner import PlannerAgent
-from src.models.image_generation_client import ImageGenerationClient
+from src.models.image_gen_interface import ImageGenerationClientInterface, build_image_generation_client
 from src.models.vlm_client import VLMClient
 from src.models.llm_client import LLMClient
 from src.core.config import settings
@@ -35,12 +35,12 @@ class ImageGenerationWorkflow:
     
     def __init__(
         self,
-        imagen_client: ImageGenerationClient,
+        imagen_client: ImageGenerationClientInterface,
         vlm_client: VLMClient,
         llm_client: LLMClient
     ):
         self.generator = GeneratorAgent(imagen_client, llm_client)
-        self.critic = CriticAgent(vlm_client)
+        self.critic = CriticAgent(vlm_client, llm_client)
         self.planner = PlannerAgent(llm_client)
         
         self.status_callback: Optional[Callable] = None        
@@ -331,7 +331,7 @@ class ImageGenerationWorkflow:
 
 
 async def create_workflow() -> ImageGenerationWorkflow:
-    imagen_client = ImageGenerationClient()
+    imagen_client = build_image_generation_client()
     vlm_client = VLMClient()
     llm_client = LLMClient()
     

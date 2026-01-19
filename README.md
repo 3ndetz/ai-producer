@@ -52,7 +52,7 @@ uvicorn src.backend.server:app --host 0.0.0.0 --port 8001
 chainlit run src/web/app.py --host 0.0.0.0 --port 8008
 ```
 
-Откройте браузер: http://localhost:8000
+Откройте браузер: http://localhost:8008
 
 #### Вариант 2: Через main.py
 
